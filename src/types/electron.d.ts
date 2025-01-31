@@ -1,3 +1,7 @@
+declare interface Window {
+  electron: ElectronAPI;
+}
+
 interface ElectronAPI {
   saveEmbedding: (
     chunkId: number,

@@ -1,13 +1,25 @@
 import { useState } from "react";
 import "./App.css";
 
-function App() {
-  const [count, setCount] = useState(0);
-  const [embeddings, setEmbeddings] = useState([]);
-  const [queryResult, setQueryResult] = useState([]);
+// Define interfaces for your data structures
+interface Embedding {
+  chunkId: number;
+  embeddingVector: Float32Array;
+}
 
-  const handleSaveEmbedding = async () => {
-    const chunkId = count; // Example: using count as chunkId
+interface QueryResult {
+  chunkId: number;
+  distance: number;
+}
+function App() {
+  const [count, setCount] = useState<number>(0);
+  const [embeddings, setEmbeddings] = useState<Embedding[]>([]);
+  const [queryResult, setQueryResult] = useState<QueryResult[]>([]);
+
+  const handleSaveEmbedding = async (): Promise<void> => {
+    const newCount = count + 1;
+    setCount(newCount);
+    const chunkId = newCount; // Example: using count as chunkId
     const embeddingVector = new Float32Array([0.1, 0.2, 0.3, 0.4, 0.5]); // Example embedding vector
 
     try {
@@ -19,7 +31,7 @@ function App() {
     }
   };
 
-  const handleFindSimilarEmbeddings = async () => {
+  const handleFindSimilarEmbeddings = async (): Promise<void> => {
     const queryEmbedding = new Float32Array([0.1, 0.2, 0.3, 0.5, 0.4]); // Example query embedding
 
     try {
@@ -36,9 +48,6 @@ function App() {
     <>
       <h1>Error Demo</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          Count is {count}
-        </button>
         <button onClick={handleSaveEmbedding}>Save Embedding</button>
         <button onClick={handleFindSimilarEmbeddings}>
           Find Similar Embeddings
