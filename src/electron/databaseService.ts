@@ -3,6 +3,7 @@ import fs from "fs";
 import path from "path";
 import * as sqliteVec from "sqlite-vec";
 import { getDatabasePath } from "./pathResolver.js";
+import { app } from 'electron';  // Add this import
 
 export class DatabaseService {
   private static instance: DatabaseService;
@@ -20,11 +21,24 @@ export class DatabaseService {
       fs.mkdirSync(dbDir, { recursive: true });
     }
 
-    // Initialize Better SQLite3 and SQLite-Vec
+    // Initialize Better SQLite3
     this.vectorDb = new BetterSqlite3(this.dbPath);
-    sqliteVec.load(this.vectorDb);
-    // Check and log versions
-    this.logDatabaseVersions();
+    
+    // Resolve the correct path for the SQLite extension
+    const extensionPath = path.join(
+      app.getAppPath().replace('app.asar', 'app.asar.unpacked'),
+      'node_modules/sqlite-vec-darwin-arm64/vec0.dylib'
+    );
+    console.log("Extension path:", extensionPath);
+    console.log("Extension exists:", fs.existsSync(extensionPath));
+
+    // Load the SQLite extension using the correct path
+    try {
+      this.vectorDb.loadExtension(extensionPath);
+    } catch (error) {
+      console.error("Failed to load extension:", error);
+      throw error;
+    }
 
     // Initialize the database schema
     this.initializeSchema();
