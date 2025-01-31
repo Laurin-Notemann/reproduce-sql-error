@@ -1,50 +1,68 @@
-# React + TypeScript + Vite
+# This Repo Reproduces an SQLITE_ERROR
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Getting started
 
-Currently, two official plugins are available:
+```sh
+# pull the repo
+cd reproduce-sql-error
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+npm install
 
-## Expanding the ESLint configuration
+# start development mode (this works fine)
+npm run dev
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+# this creates the DMG & ZIP files for distribution (also runs w/o errors)
+npm run package
 
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+# run app in production mode -> frontend works but no response from backend
+npm run start
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Reproducing the Error
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+```sh
+# Build and package the Electron app for macOS ARM64
+npm run package
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+# Extract the packaged application from the zip file
+unzip dist/ErrorDemo-0.0.0-arm64-mac.zip
+
+# Launch the application from the command line to see error output
+./ErrorDemo.app/Contents/MacOS/ErrorDemo
+
+# Expected error output and explanation:
+# Initial startup information
+App ready event fired
+Electron version: 30.5.1
+Chrome version: 124.0.6367.243
+Node version: 20.16.0
+
+# Shows where the app is trying to store its database
+Database path (this.dbPath): /Users/matsfunke/Library/Application Support/reproduce-sql-error/data/demo.db
+
+# Main error: SQLite extension loading failure
+# The error occurs because the native module (vec0.dylib) can't be loaded from the asar archive
+Failed to create window: SqliteError: dlopen(/Users/matsfunke/dev/reproduce-sql-error/ErrorDemo.app/Contents/Resources/app.asar/node_modules/sqlite-vec-darwin-arm64/vec0.dylib.dylib, 0x000A): tried: '/Users/matsfunke/dev/reproduce-sql-error/ErrorDemo.app/Contents/Resources/app.asar/node_modules/sqlite-vec-darwin-arm64/vec0.dylib.dylib' (errno=20)...
+
+# Error stack trace showing the sequence of calls that led to the failure:
+# 1. Trying to load SQLite extension
+    at Database.loadExtension (...wrappers.js:19:14)
+# 2. sqlite-vec module attempting to load
+    at Module.load (file:.../sqlite-vec/index.mjs:55:6)
+# 3. DatabaseService constructor initialization
+    at new DatabaseService (file:.../databaseService.js:21:19)
+# 4. Window creation process
+    at createWindow (file:.../main.js:33:21)
+# 5. App initialization
+    at initializeApp (file:.../main.js:56:15)
+# 6. App event handler
+    at App.<anonymous> (file:.../main.js:70:5)
+    at App.emit (node:events:519:28) {
+  code: 'SQLITE_ERROR'
+}
 ```
+
+`/Users/matsfunke/dev/reproduce-sql-error/ErrorDemo.app/Contents/Resources/app.asar/node_modules/sqlite-vec-darwin-arm64/vec0.dylib` exsits but electron tries to open `/Users/matsfunke/dev/reproduce-sql-error/ErrorDemo.app/Contents/Resources/app.asar/node_modules/sqlite-vec-darwin-arm64/vec0.dylib.dylib`, I have tried several approaches but can't alter this behaviour.
+
+
+Any help would be greatly apprciated!!!
