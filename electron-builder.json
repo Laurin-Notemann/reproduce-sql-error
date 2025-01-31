@@ -1,0 +1,27 @@
+
+{
+  "appId": "com.matsjfunke.demo",
+  "productName": "ErrorDemo",
+  "copyright": "Copyright © 2025",
+  "directories": {
+    "output": "dist",
+    "buildResources": "build"
+  },
+  "asar": true,
+  "asarUnpack": [
+    "**/*.dylib",
+    "node_modules/better-sqlite3/**/*",
+    "node_modules/sqlite-vec/**/*",
+    "node_modules/sqlite-vec-darwin-arm64/**/*"
+  ],
+  "files": [
+    "dist-electron/**/*",
+    "dist-react/**/*",
+  ],
+  "extraResources": ["dist-electron/preload.cjs"],
+  "mac": {
+    "target": ["dmg", "zip"],
+    "category": "public.app.category.productivity",
+    "hardenedRuntime": true,
+  }
+}

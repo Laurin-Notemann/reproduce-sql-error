@@ -1,0 +1,50 @@
+{
+  "name": "reproduce-sql-error",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "dev": "cross-env NODE_ENV=development npm-run-all --parallel dev:react dev:electron",
+    "dev:react": "vite",
+    "dev:electron": "npm run transpile:electron; electron .",
+    "transpile:electron": "tsc --project src/electron/tsconfig.json",
+    "build": "npm run clean && npm run build:all",
+    "build:all": "npm run build:react && npm run build:electron",
+    "build:react": "vite build --outDir dist-react",
+    "build:electron": "npm run transpile:electron",
+    "rebuild": "npx electron-rebuild",
+    "package": "npm run build && electron-builder --mac --arm64",
+    "start": "cross-env NODE_ENV=production electron .",
+    "clean": "rimraf dist-electron dist-react release",
+    "postinstall": "electron-builder install-app-deps"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "better-sqlite3": "^11.8.1",
+    "sqlite-vec": "^0.1.7-alpha.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "@types/better-sqlite3": "^7.6.12",
+    "eslint": "^9.17.0",
+    "cross-env": "^7.0.3",
+    "electron": "^30.0.2",
+    "electron-builder": "^24.13.3",
+    "electron-rebuild": "^3.2.9",
+    "npm-run-all": "^4.1.5",
+    "postcss": "^8.5.1",
+    "rimraf": "^6.0.1",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.16",
+    "globals": "^15.14.0",
+    "tsx": "^4.19.2",
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.18.2",
+    "vite": "^6.0.5"
+  }
+}
