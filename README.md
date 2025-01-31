@@ -1,5 +1,7 @@
 # This Repo Reproduces an SQLITE_ERROR
 
+with this repo the Error described in this [issue](https://github.com/electron-userland/electron-builder/issues/8824#issuecomment-2626105879) can be reproduced.
+
 ## Getting started
 
 ```sh
